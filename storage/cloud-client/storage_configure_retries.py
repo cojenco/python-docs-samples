@@ -23,7 +23,9 @@ from google.cloud.storage.retry import DEFAULT_RETRY
 
 def configure_retries(bucket_name, blob_name):
     """Configures retries with customizations."""
+    # The ID of your GCS bucket
     # bucket_name = "your-bucket-name"
+    # The ID of your GCS object
     # blob_name = "your-object-name"
 
     storage_client = storage.Client()
@@ -32,16 +34,19 @@ def configure_retries(bucket_name, blob_name):
 
     # Customize Retry with a deadline of 500 seconds instead of the default 120 seconds.
     # Customize Retry with a wait time multiplier per iteration of 3.0 instead of the default 2.0.
-    modified_retry = DEFAULT_RETRY.with_deadline(500)
-    modified_retry = modified_retry.with_delay(maximum=60, multiplier=3)
+    modified_retry = DEFAULT_RETRY.with_deadline(500.0)
+    modified_retry = modified_retry.with_delay(multiplier=3.0)
 
     # blob.delete() uses DEFAULT_RETRY_IF_GENERATION_SPECIFIED by default.
     # Override with modified_retry so that the function retries even if the generation number is not specified.
-    print("The following library method is customized to be retried according to the following configurations:")
+    print(
+        "The following library method is customized to be retried according to the following configurations:"
+    )
     print(modified_retry.__str__())
 
     blob.delete(retry=modified_retry)
     print("Blob {} deleted with a customized retry strategy.".format(blob_name))
+
 
 # [END storage_configure_retries]
 

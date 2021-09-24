@@ -111,8 +111,8 @@ def test_bucket():
 def test_public_bucket():
     # The new projects don't allow to make a bucket available to public, so
     # for some tests we need to use the old main project for now.
-    original_value = os.environ['GOOGLE_CLOUD_PROJECT']
-    os.environ['GOOGLE_CLOUD_PROJECT'] = os.environ['MAIN_GOOGLE_CLOUD_PROJECT']
+    original_value = os.environ["GOOGLE_CLOUD_PROJECT"]
+    os.environ["GOOGLE_CLOUD_PROJECT"] = os.environ["MAIN_GOOGLE_CLOUD_PROJECT"]
     bucket = None
     while bucket is None or bucket.exists():
         storage_client = storage.Client()
@@ -122,7 +122,7 @@ def test_public_bucket():
     yield bucket
     bucket.delete(force=True)
     # Set the value back.
-    os.environ['GOOGLE_CLOUD_PROJECT'] = original_value
+    os.environ["GOOGLE_CLOUD_PROJECT"] = original_value
 
 
 @pytest.fixture
@@ -227,7 +227,8 @@ def test_delete_blob(test_blob):
 
 def test_make_blob_public(test_public_blob):
     storage_make_public.make_blob_public(
-        test_public_blob.bucket.name, test_public_blob.name)
+        test_public_blob.bucket.name, test_public_blob.name
+    )
 
     r = requests.get(test_public_blob.public_url)
     assert r.text == "Hello, is it me you're looking for?"
@@ -259,7 +260,9 @@ def test_generate_upload_signed_url_v4(test_bucket, capsys):
     )
 
     requests.put(
-        url, data=content, headers={"content-type": "application/octet-stream"},
+        url,
+        data=content,
+        headers={"content-type": "application/octet-stream"},
     )
 
     bucket = storage.Client().bucket(test_bucket.name)
@@ -341,16 +344,20 @@ def test_versioning(test_bucket, capsys):
 
 
 def test_bucket_lifecycle_management(test_bucket, capsys):
-    bucket = storage_enable_bucket_lifecycle_management.enable_bucket_lifecycle_management(
-        test_bucket
+    bucket = (
+        storage_enable_bucket_lifecycle_management.enable_bucket_lifecycle_management(
+            test_bucket
+        )
     )
     out, _ = capsys.readouterr()
     assert "[]" in out
     assert "Lifecycle management is enable" in out
     assert len(list(bucket.lifecycle_rules)) > 0
 
-    bucket = storage_disable_bucket_lifecycle_management.disable_bucket_lifecycle_management(
-        test_bucket
+    bucket = (
+        storage_disable_bucket_lifecycle_management.disable_bucket_lifecycle_management(
+            test_bucket
+        )
     )
     out, _ = capsys.readouterr()
     assert "[]" in out
@@ -391,7 +398,8 @@ def test_get_service_account(capsys):
 
 def test_download_public_file(test_public_blob):
     storage_make_public.make_blob_public(
-        test_public_blob.bucket.name, test_public_blob.name)
+        test_public_blob.bucket.name, test_public_blob.name
+    )
     with tempfile.NamedTemporaryFile() as dest_file:
         storage_download_public_file.download_public_file(
             test_public_blob.bucket.name, test_public_blob.name, dest_file.name
@@ -401,8 +409,10 @@ def test_download_public_file(test_public_blob):
 
 
 def test_define_bucket_website_configuration(test_bucket):
-    bucket = storage_define_bucket_website_configuration.define_bucket_website_configuration(
-        test_bucket.name, "index.html", "404.html"
+    bucket = (
+        storage_define_bucket_website_configuration.define_bucket_website_configuration(
+            test_bucket.name, "index.html", "404.html"
+        )
     )
 
     website_val = {"mainPageSuffix": "index.html", "notFoundPage": "404.html"}
@@ -465,7 +475,7 @@ def test_change_default_storage_class(test_bucket, capsys):
     )
     out, _ = capsys.readouterr()
     assert "Default storage class for bucket" in out
-    assert bucket.storage_class == 'COLDLINE'
+    assert bucket.storage_class == "COLDLINE"
 
 
 def test_change_file_storage_class(test_blob, capsys):
@@ -473,8 +483,8 @@ def test_change_file_storage_class(test_blob, capsys):
         test_blob.bucket.name, test_blob.name
     )
     out, _ = capsys.readouterr()
-    assert "Blob {} in bucket {}". format(blob.name, blob.bucket.name) in out
-    assert blob.storage_class == 'NEARLINE'
+    assert "Blob {} in bucket {}".format(blob.name, blob.bucket.name) in out
+    assert blob.storage_class == "NEARLINE"
 
 
 def test_copy_file_archived_generation(test_blob):
@@ -502,12 +512,10 @@ def test_list_blobs_archived_generation(test_blob, capsys):
 
 
 def test_storage_configure_retries(test_blob, capsys):
-    storage_configure_retries.configure_retries(
-        test_blob.bucket.name, test_blob.name
-    )
+    storage_configure_retries.configure_retries(test_blob.bucket.name, test_blob.name)
 
     # This simply checks if the retry configurations were set and printed as intended.
     out, _ = capsys.readouterr()
     assert "The following library method is customized to be retried" in out
     assert "_should_retry" in out
-    assert "maximum=60.0, multiplier=3.0, deadline=500.0" in out
+    assert "initial=1.0, maximum=60.0, multiplier=3.0, deadline=500.0" in out
