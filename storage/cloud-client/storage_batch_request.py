@@ -28,7 +28,7 @@ from google.cloud import storage
 
 
 def batch_request(bucket_name, prefix=None):
-    """Sets the public access prevention status to inherited, so that the bucket inherits its setting from its parent project."""
+    """Use a batch request to patch a list of objects with the given prefix in a bucket."""
     # The ID of your GCS bucket
     # bucket_name = "my-bucket"
     # The prefix of the object paths
