@@ -37,10 +37,11 @@ def batch_request(bucket_name, prefix=None):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
 
-    # Accumulate in a list the objects with a given prefix
+    # Accumulate in a list the objects with a given prefix.
     blobs_to_patch = [blob for blob in bucket.list_blobs(prefix=prefix)]
 
-    # Use a batch context manager to edit metadata in the list of blobs
+    # Use a batch context manager to edit metadata in the list of blobs.
+    # The batch request is sent out when the context manager closes.
     with client.batch():
         for blob in blobs_to_patch:
             metadata = {"your-metadata-key": "your-metadata-value"}
